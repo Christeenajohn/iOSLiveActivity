@@ -23,11 +23,12 @@ final class LiveActivityManager {
            deliveryActivity == nil {
             // Create the activity attributes and activity content objects.
             let initialContentState = StatusAttributes.ContentState(currentStep: 1, status: getStatusForStep(1))
-            let activityAttributes = StatusAttributes(totalSteps: 5)
+            let activityAttributes = StatusAttributes(totalSteps: 5, orderId: "123")
             do {
                 // line 1: Start the Live Activity.
                 deliveryActivity = try Activity<StatusAttributes>.request(attributes: activityAttributes,
-                                                                              contentState: initialContentState)
+                                                                              contentState: initialContentState,
+                                                                              pushType: .token)
                 status = getStatusForStep(initialContentState.currentStep)
                 Task {
                     for await data in deliveryActivity!.pushTokenUpdates {
@@ -45,7 +46,7 @@ final class LiveActivityManager {
     func updateActivity() {
         Task {
             guard var step = deliveryActivity?.contentState.currentStep,
-                  let totalSteps = deliveryActivity?.attributes.totalSteps else {return}
+                  let totalSteps = deliveryActivity?.attributes.totalSteps else { return }
             if step < totalSteps {
                 step = step + 1
                 let activityContent = StatusAttributes.ContentState(currentStep: step,
@@ -81,6 +82,13 @@ final class LiveActivityManager {
             return "Delivered"
         default:
             return "Cancelled"
+        }
+    }
+    
+    func updateExistingActivities() {
+        for activity in Activity<StatusAttributes>.activities {
+            let orderId = activity.attributes.orderId
+            //Make API call to get the status of the order and update/end the activity accordingly
         }
     }
 }

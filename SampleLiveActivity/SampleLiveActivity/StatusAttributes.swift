@@ -16,5 +16,6 @@ struct StatusAttributes: ActivityAttributes {
     }
     
     // Fixed non-changing properties about your activity go here!
-    var totalSteps: Int
+    let totalSteps: Int
+    let orderId: String
 }
